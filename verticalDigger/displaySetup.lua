@@ -5,10 +5,10 @@ function getFormattedTime()
 end
 local monitor = peripheral.wrap("front")
 function main()
+    term.redirect("monitor")
    while true do
     rednet.open("right")
     senderId,message = rednet.receive()
-    monitor.write(getFormattedTime(), message.name)
     print(getFormattedTime(), message.name)
     rednet.close()
    end

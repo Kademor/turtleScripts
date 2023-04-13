@@ -9,29 +9,40 @@ local CHUNK_LOADING_TURTLE = 6
 -- Slot 4 boosters(x3), 
 -- Slot 5 chunk loader 
 function setupMining()
- turtle.down()
- turtle.select(2)
- turtle.place()
- turtle.up()
- turtle.select(3)
- turtle.place()
- turtle.select(4)
- for i =3,1,-1
- do
-    turtle.up()
-    turtle.place()
- end
- turtle.up()
- turtle.select(5)
- turtle.place()
- for i =4,1,-1
- do
+    clearMining()
     turtle.down()
- end
- turtle.select(1)
- turtle.placeDown()
+    turtle.select(2)
+    turtle.place()
+    turtle.up()
+    turtle.select(3)
+    turtle.place()
+    turtle.select(4)
+    for i =3,1,-1
+    do
+        turtle.up()
+        turtle.place()
+    end
+    turtle.up()
+    turtle.select(5)
+    turtle.place()
+    for i =4,1,-1
+    do
+        turtle.down()
+    end
+    turtle.select(1)
+    turtle.placeDown()
+    unload()
 end
 
+function unload()
+	print( "Unloading items..." )
+	for n=1,15 do
+		local nCount = turtle.getItemCount(n)
+        turtle.select(n)	
+        turtle.dropDown()		
+	end
+	turtle.select(1)
+end
 
 -- Clear Mining
 function clearMining()
@@ -50,8 +61,25 @@ function clearMining()
     end
 end
 
+local blocksToClimb = 0;
+function lowerTurtleUntilBlockIsFound()
+    blocksToClimb = 0; 
+    local success, data = turtle.inspectDown()
+    while (not success) do
+        turtle.down()
+        success, data = turtle.inspectDown()
+        blocksToClimb = blocksToClimb + 1
+    end
+end
 
 function relocate()
+    -- Go in the sky
+    
+    for i =blocksToClimb,1,-1
+    do
+       turtle.up()
+    end
+    -- Move forwards
     for i =16,1,-1
     do
        turtle.forward()
@@ -68,13 +96,23 @@ function getItemsFromMiner()
     if (itemCount == 0) then
         return false;
     else
-        print(getFormattedTime(), "Found item : " , turtle.getItemDetail().name)
+        print(getFormattedTime(), turtle.getItemDetail().name)
+        rednet.open("left")
+        rednet.send(7, turtle.getItemDetail())
+        rednet.close()
         turtle.dropDown()
         return true;
     end
 end
 
-
+-- function refuel()
+--     turtle.select(16)
+--     turtle.place()
+--     turtle.suck()
+--     turtle.refuel()
+--     turtle.dig()
+--     turtle.select(1)
+-- end
 
 function getFormattedTime()
     return textutils.formatTime(os.time(), false) .. " : "
@@ -94,7 +132,8 @@ function awaitReadyToRestart()
     rednet.close()
 end
 
-local TIMER_DURATION = 400;
+-- 10 mins
+local TIMER_DURATION = 600;
 -- Timer fonction
 function startMining ()
     local delay = 0;
@@ -111,14 +150,16 @@ function startMining ()
     until delay == TIMER_DURATION
 end
 
+
 function main() 
     while true do
+        lowerTurtleUntilBlockIsFound()
+        setupMining()
         startMining()
         sendMiningFinishedUpdate()
         awaitReadyToRestart()
         clearMining()
         relocate()
-        setupMining()
     end
 end
 
