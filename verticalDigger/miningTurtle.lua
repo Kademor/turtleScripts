@@ -74,7 +74,6 @@ end
 
 function relocate()
     -- Go in the sky
-    
     for i =blocksToClimb,1,-1
     do
        turtle.up()
@@ -105,14 +104,15 @@ function getItemsFromMiner()
     end
 end
 
--- function refuel()
---     turtle.select(16)
---     turtle.place()
---     turtle.suck()
---     turtle.refuel()
---     turtle.dig()
---     turtle.select(1)
--- end
+function refuel()
+    turtle.select(16)
+    turtle.place()
+    turtle.suck()
+    turtle.refuel()
+    turtle.drop()
+    turtle.dig()
+    turtle.select(1)
+end
 
 function getFormattedTime()
     return textutils.formatTime(os.time(), false) .. " : "
