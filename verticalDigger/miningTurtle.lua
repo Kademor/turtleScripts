@@ -75,15 +75,9 @@ end
 
 function relocate()
     location = gps.locate()
-    gpsTable = {}
-    loopInt = 0
-
-    for i in string.gmatch(example, "%S+") do
-        gpsTable[loopInt] = i
-        loopInt = loopInt + 1
-    end
+    local x, y, z = gps.locate()
     -- Return to y position 170
-    for i = 170-gpsTable[1],1,-1
+    for i = 170-y,1,-1
     do
        turtle.up()
     end
