@@ -65,6 +65,10 @@ function refuel()
     end
 end
  
+function sendPosition()
+    
+end
+
 function main()
     while true do
         refuel()

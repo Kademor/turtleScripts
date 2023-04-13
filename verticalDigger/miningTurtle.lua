@@ -1,7 +1,7 @@
 -- Script for the main mining turtle
 
 local CHUNK_LOADING_TURTLE = 6
-
+local MASTER_COMPUTER_ID = 22
 -- Setup next mining
 -- Slot 1 ender chest, 
 -- Slot 2 dimensinal receiver, 
@@ -34,6 +34,7 @@ function setupMining()
     unload()
 end
 
+-- Unloads all items except last slot
 function unload()
 	print( "Unloading items..." )
 	for n=1,15 do
@@ -73,19 +74,26 @@ function lowerTurtleUntilBlockIsFound()
 end
 
 function relocate()
-    -- Go in the sky
-    for i =blocksToClimb,1,-1
+    location = gps.locate()
+    gpsTable = {}
+    loopInt = 0
+
+    for i in string.gmatch(example, "%S+") do
+        gpsTable[loopInt] = i
+        loopInt = loopInt + 1
+    end
+    -- Return to y position 170
+    for i = 170-gpsTable[1],1,-1
     do
        turtle.up()
     end
+    refuel()
     -- Move forwards
     for i =16,1,-1
     do
        turtle.forward()
     end
 end
-
-
 
 -- Gets items from miner, returns true if still has items
 function getItemsFromMiner()
@@ -97,7 +105,7 @@ function getItemsFromMiner()
     else
         print(getFormattedTime(), turtle.getItemDetail().name)
         rednet.open("left")
-        rednet.send(7, turtle.getItemDetail())
+        rednet.send(7, "(" .. os.getComputerLabel() .. ") : " .. turtle.getItemDetail())
         rednet.close()
         turtle.dropDown()
         return true;
@@ -150,9 +158,17 @@ function startMining ()
     until delay == TIMER_DURATION
 end
 
+function sendCurrentPositonToMaster()
+    rednet.open("left")
+    rednet.send(MASTER_COMPUTER_ID, "(" .. os.getComputerLabel() .. ")".. "Location : " .. gps.locate())
+    rednet.close()
+end
+
+function getComputerLabe
 
 function main() 
     while true do
+        sendCurrentPositonToMaster()
         lowerTurtleUntilBlockIsFound()
         setupMining()
         startMining()

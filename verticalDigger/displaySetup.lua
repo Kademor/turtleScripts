@@ -9,7 +9,7 @@ function main()
    while true do
     rednet.open("right")
     senderId,message = rednet.receive()
-    print(getFormattedTime(), message.name)
+    print(getFormattedTime(), message)
     rednet.close()
    end
 end
