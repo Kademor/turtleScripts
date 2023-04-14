@@ -62,19 +62,15 @@ function clearMining()
     end
 end
 
-local blocksToClimb = 0;
 function lowerTurtleUntilBlockIsFound()
-    blocksToClimb = 0; 
     local success, data = turtle.inspectDown()
     while (not success) do
         turtle.down()
         success, data = turtle.inspectDown()
-        blocksToClimb = blocksToClimb + 1
     end
 end
 
 function relocate()
-    location = gps.locate()
     local x, y, z = gps.locate()
     -- Return to y position 170
     for i = 170-y,1,-1
@@ -82,7 +78,7 @@ function relocate()
        turtle.up()
     end
     refuel()
-    -- Move forwards
+    -- Move forwards of a chunk
     for i =16,1,-1
     do
        turtle.forward()
@@ -99,7 +95,7 @@ function getItemsFromMiner()
     else
         print(getFormattedTime(), turtle.getItemDetail().name)
         rednet.open("left")
-        rednet.send(7, "(" .. os.getComputerLabel() .. ") : " .. turtle.getItemDetail())
+        rednet.send(7, "(" .. os.getComputerLabel() .. ") : " .. turtle.getItemDetail().name)
         rednet.close()
         turtle.dropDown()
         return true;
@@ -153,12 +149,14 @@ function startMining ()
 end
 
 function sendCurrentPositonToMaster()
+    -- for server reboots, wait a bit to be sure gps hosts are ready
+    sleep(5)
     rednet.open("left")
-    rednet.send(MASTER_COMPUTER_ID, "(" .. os.getComputerLabel() .. ")".. "Location : " .. gps.locate())
+    x,y,z = gps.locate()
+    rednet.send(MASTER_COMPUTER_ID, "(" .. os.getComputerLabel() .. ")".. "Location : " .. x .. " " .. y .. " " .. z) 
     rednet.close()
 end
 
-function getComputerLabe
 
 function main() 
     while true do
